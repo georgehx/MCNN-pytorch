@@ -6,7 +6,7 @@ class MCNN(nn.Module):
     '''
     Implementation of Multi-column CNN for crowd counting
     '''
-    def __init__(self,load_weights=False):
+    def __init__(self):
         super(MCNN,self).__init__()
 
         self.branch1=nn.Sequential(
@@ -50,9 +50,6 @@ class MCNN(nn.Module):
 
         self.fuse=nn.Sequential(nn.Conv2d(30,1,1,padding=0))
 
-        if not load_weights:
-            self._initialize_weights()
-
     def forward(self,img_tensor):
         x1=self.branch1(img_tensor)
         x2=self.branch2(img_tensor)
@@ -60,16 +57,6 @@ class MCNN(nn.Module):
         x=torch.cat((x1,x2,x3),1)
         x=self.fuse(x)
         return x
-
-    def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.normal_(m.weight, std=0.01)
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm2d):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
 
 
 # test code

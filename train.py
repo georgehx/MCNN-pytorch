@@ -11,19 +11,20 @@ from my_dataloader import CrowdDataset
 if __name__=="__main__":
     torch.backends.cudnn.enabled=False
     vis=visdom.Visdom()
-    device=torch.device("cuda")
+    #device=torch.device("cuda")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mcnn=MCNN().to(device)
     criterion=nn.MSELoss(size_average=False).to(device)
     optimizer = torch.optim.SGD(mcnn.parameters(), lr=1e-6,
                                 momentum=0.95)
-    
-    img_root='D:\\workspaceMaZhenwei\\GithubProject\\MCNN-pytorch\\data\\Shanghai_part_A\\train_data\\images'
-    gt_dmap_root='D:\\workspaceMaZhenwei\\GithubProject\\MCNN-pytorch\\data\\Shanghai_part_A\\train_data\\ground_truth'
+
+    img_root='/Users/georgehan/GitHub/MCNN-pytorch/ShanghaiTech_Crowd_Counting_Dataset/part_A_final/train_data/images'
+    gt_dmap_root='/Users/georgehan/GitHub/MCNN-pytorch/ShanghaiTech_Crowd_Counting_Dataset/part_A_final/train_data/ground_truth'
     dataset=CrowdDataset(img_root,gt_dmap_root,4)
     dataloader=torch.utils.data.DataLoader(dataset,batch_size=1,shuffle=True)
 
-    test_img_root='D:\\workspaceMaZhenwei\\GithubProject\\MCNN-pytorch\\data\\Shanghai_part_A\\test_data\\images'
-    test_gt_dmap_root='D:\\workspaceMaZhenwei\\GithubProject\\MCNN-pytorch\\data\\Shanghai_part_A\\test_data\\ground_truth'
+    test_img_root='/Users/georgehan/GitHub/MCNN-pytorch/ShanghaiTech_Crowd_Counting_Dataset/part_A_final/test_data/images'
+    test_gt_dmap_root='/Users/georgehan/GitHub/MCNN-pytorch/ShanghaiTech_Crowd_Counting_Dataset/part_A_final/test_data/ground_truth'
     test_dataset=CrowdDataset(test_img_root,test_gt_dmap_root,4)
     test_dataloader=torch.utils.data.DataLoader(test_dataset,batch_size=1,shuffle=False)
 
@@ -81,10 +82,8 @@ if __name__=="__main__":
         et_dmap=mcnn(img)
         et_dmap=et_dmap.squeeze(0).detach().cpu().numpy()
         vis.image(win=5,img=et_dmap/(et_dmap.max())*255,opts=dict(title='et_dmap('+str(et_dmap.sum())+')'))
-        
+
 
 
     import time
     print(time.strftime('%Y.%m.%d %H:%M:%S',time.localtime(time.time())))
-
-        
